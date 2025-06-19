@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Masjid Ridzwaniah - Langkawi</title>
+  <title>Masjid Langkawi – Waktu Solat</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,7 +28,7 @@
     .memo-container { flex: 1; overflow: hidden; position: relative; }
     .memo-list {
       position: absolute;
-      animation: scrollUp 15s linear infinite;
+      animation: scrollUp 20s linear infinite;
     }
     @keyframes scrollUp {
       0% { top: 100%; }
@@ -127,18 +127,16 @@
       </div>
     </div>
   </div>
-
   <div class="main-content">
     <div class="slideshow" id="slideshow">
       <img src="images/mosque1.jpg" class="active" />
       <img src="images/mosque2.jpg" />
-      <img src="https://source.unsplash.com/1600x900/?mosque,3" />
+      <img src="images/mosque3.jpg" />
     </div>
   </div>
-
   <div class="prayer-section">
     <div>
-      <div class="header">Masjid Ridzwaniah</div>
+      <div class="header">Masjid Langkawi</div>
       <div class="date" id="date"></div>
       <div class="time" id="clock"></div>
       <div class="prayer-table" id="prayerTimesDisplay">
@@ -159,25 +157,29 @@
   <audio id="azanAudio" src="https://archive.org/download/azan_202104/azan.mp3" preload="auto"></audio>
 
   <script>
-    const prayerOrder = ['subuh', 'syuruk', 'zohor', 'asar', 'maghrib', 'isyak'];
+    const LAT = 6.3500;
+    const LONG = 99.8000;
+    const METHOD = 2; // ISNA method
+    const prayerIds = {
+      Fajr: "subuh", Sunrise: "syuruk", Dhuhr: "zohor",
+      Asr: "asar", Maghrib: "maghrib", Isha: "isyak"
+    };
     let currentPrayerTimes = {};
     let azanPlayed = {};
 
     async function fetchPrayerTimes() {
+      const url = `https://api.aladhan.com/v1/timings?latitude=${LAT}&longitude=${LONG}&method=${METHOD}`;
       try {
-        const res = await fetch('https://waktu-solat-api.herokuapp.com/api/v1/prayer_times.json?zon=langkawi');
-        const data = await res.json();
-        const zone = data.data.find(z => z.zon === 'langkawi');
-        if (!zone) throw 'Zone not found';
-
-        zone.waktu_solat.forEach(item => {
-          if (prayerOrder.includes(item.name)) {
-            currentPrayerTimes[item.name] = item.time;
-            document.getElementById(item.name).textContent = item.time;
-          }
-        });
-      } catch (e) {
-        console.error('Failed to fetch prayer times:', e);
+        const res = await fetch(url);
+        const json = await res.json();
+        const timings = json.data.timings;
+        for (let key in prayerIds) {
+          const id = prayerIds[key];
+          currentPrayerTimes[id] = timings[key].slice(0, 5);
+          document.getElementById(id).textContent = currentPrayerTimes[id];
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
       }
     }
 
@@ -191,17 +193,18 @@
     }
 
     function updateNextPrayerCountdown(now) {
-      for (let id of prayerOrder) {
+      const order = ["subuh", "syuruk", "zohor", "asar", "maghrib", "isyak"];
+      for (let id of order) {
         if (currentPrayerTimes[id]) {
-          const [h, m] = currentPrayerTimes[id].split(':').map(Number);
+          const [hour, minute] = currentPrayerTimes[id].split(':').map(Number);
           const prayerTime = new Date(now);
-          prayerTime.setHours(h, m, 0, 0);
+          prayerTime.setHours(hour, minute, 0, 0);
           if (prayerTime > now) {
             const diff = prayerTime - now;
-            const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
-            const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-            const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-            document.getElementById("nextPrayerCountdown").textContent = `Countdown: ${hours}:${minutes}:${seconds}`;
+            const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+            const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+            const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+            document.getElementById("nextPrayerCountdown").textContent = `Countdown: ${h}:${m}:${s}`;
             break;
           }
         }
@@ -221,7 +224,7 @@
       for (let id in currentPrayerTimes) {
         const time = currentPrayerTimes[id];
         if (time === currentTime && !azanPlayed[time]) {
-          document.getElementById("azanAudio").play().catch(() => {});
+          document.getElementById("azanAudio").play().catch(e => {});
           azanPlayed[time] = true;
         }
       }
@@ -229,43 +232,42 @@
 
     function highlightCurrentAndNextPrayer() {
       const now = new Date();
+      const order = ["subuh", "syuruk", "zohor", "asar", "maghrib", "isyak"];
       let current = null, next = null;
-
-      for (let i = 0; i < prayerOrder.length; i++) {
-        const id = prayerOrder[i];
+      for (let i = 0; i < order.length; i++) {
+        const id = order[i];
         const timeStr = currentPrayerTimes[id];
         if (!timeStr) continue;
         const [h, m] = timeStr.split(':').map(Number);
-        const time = new Date(now);
-        time.setHours(h, m, 0, 0);
-        if (now >= time) current = id;
+        const prayerTime = new Date();
+        prayerTime.setHours(h, m, 0, 0);
+        if (now >= prayerTime) current = id;
         else if (!next) next = id;
       }
-
-      prayerOrder.forEach(id => {
+      order.forEach(id => {
         const el = document.getElementById(id).parentElement;
         el.classList.remove('current-prayer', 'next-prayer');
       });
-
       if (current) document.getElementById(current).parentElement.classList.add('current-prayer');
       if (next) document.getElementById(next).parentElement.classList.add('next-prayer');
     }
 
     function startSlideshow() {
       const slides = document.querySelectorAll('#slideshow img');
-      let index = 0;
+      let currentSlide = 0;
       setInterval(() => {
-        slides[index].classList.remove('active');
-        index = (index + 1) % slides.length;
-        slides[index].classList.add('active');
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
       }, 8000);
     }
 
-    // Initialize everything
+    // Initialize
     fetchPrayerTimes();
     updateClock();
     updateRamadanCountdown();
     startSlideshow();
+
     setInterval(() => {
       updateClock();
       updateRamadanCountdown();
