@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Masjid Ridzwaniah Display</title>
+  <title>Paparan Waktu Solat Masjid Ridzwaniah</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,20 +16,24 @@
       display: flex;
       flex-direction: column;
     }
-    .top-container {
+    .top-section {
+      display: flex; flex: 1;
+    }
+    .memo-section, .prayer-section {
+      width: 25%;
+      background-color: #111;
+      padding: 2vh 1vw;
       display: flex;
-      flex: 1;
-      width: 100%;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .memo-section {
-      width: 25%; background-color: #111;
-      padding: 2vh 1vw; overflow: hidden;
-      display: flex; flex-direction: column;
-      border-right: 2px solid #444;
-    }
+    .memo-section { border-right: 2px solid #444; }
+    .prayer-section { border-left: 2px solid #444; }
     .memo-section h2 {
-      font-size: 2vw; text-align: center;
-      color: #00ffff; margin-bottom: 1vh;
+      font-size: 2vw;
+      text-align: center;
+      color: #00ffff;
+      margin-bottom: 1vh;
     }
     .memo-container { flex: 1; overflow: hidden; position: relative; }
     .memo-list {
@@ -48,58 +52,46 @@
       font-size: 1.2vw;
     }
     .main-content {
-      width: 50%; position: relative;
+      width: 50%;
+      position: relative;
     }
     .slideshow {
-      width: 100%; height: 100%; position: relative;
+      width: 100%;
+      height: 100%;
+      position: relative;
     }
     .slideshow img {
       position: absolute;
-      width: 100%; height: 100%; object-fit: cover;
-      opacity: 0; transition: opacity 1s ease-in-out;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
     }
     .slideshow img.active { opacity: 1; }
-    .prayer-section {
-      width: 25%; padding: 2vh 1vw;
-      background-color: #111;
-      display: flex; flex-direction: column; justify-content: space-between;
-      border-left: 2px solid #444;
-    }
     .header {
-      font-size: 2vw; font-weight: 600;
-      text-align: center; color: #ffcc00;
-      margin-bottom: 0.5vh;
+      font-size: 2vw;
+      font-weight: 600;
+      text-align: center;
+      color: #ffcc00;
     }
-    .date { text-align: center; font-size: 1.2vw; color: #ccc; }
-    .time { text-align: center; font-size: 2.5vw; color: #fff; margin: 1vh 0; }
+    .date, .time {
+      text-align: center;
+      font-size: 1.5vw;
+      margin: 1vh 0;
+    }
     .prayer-table {
-      display: grid; grid-template-columns: 1fr; gap: 1vh;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1vh;
     }
     .prayer {
-      padding: 1vh; font-size: 1.2vw; text-align: center;
-      border-radius: 10px; background: rgba(255,255,255,0.08);
+      padding: 1vh;
+      font-size: 1.2vw;
+      text-align: center;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.08);
       border: 1px solid #444;
-    }
-    .countdown {
-      text-align: center; margin-top: 1vh;
-      font-size: 1.3vw; color: #00ff88; font-weight: 600;
-    }
-    .ramadan {
-      text-align: center; font-size: 1vw; color: #00aaff; margin-top: 0.5vh;
-    }
-    .ticker {
-      background: #000; padding: 1vh;
-      overflow: hidden; white-space: nowrap;
-      color: #00ffcc; font-size: 1.2vw;
-    }
-    .ticker span {
-      display: inline-block;
-      padding-left: 100%;
-      animation: ticker-scroll 40s linear infinite;
-    }
-    @keyframes ticker-scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
     }
     .current-prayer {
       background-color: #004d00 !important;
@@ -118,10 +110,33 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
+    .countdown, .ramadan {
+      text-align: center;
+      margin-top: 1vh;
+      font-size: 1.2vw;
+    }
+    .ticker {
+      background-color: #000;
+      color: #00ffff;
+      white-space: nowrap;
+      overflow: hidden;
+      position: relative;
+      height: 3vh;
+    }
+    .ticker span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: tickerScroll 40s linear infinite;
+      font-size: 1.2vw;
+    }
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
   </style>
 </head>
 <body>
-  <div class="top-container">
+  <div class="top-section">
     <div class="memo-section">
       <h2>Memo</h2>
       <div class="memo-container">
@@ -137,7 +152,7 @@
       <div class="slideshow" id="slideshow">
         <img src="images/mosque1.jpg" class="active" />
         <img src="images/mosque2.jpg" />
-        <img src="https://source.unsplash.com/1600x900/?masjid" />
+        <img src="https://source.unsplash.com/1600x900/?mosque,langkawi" />
       </div>
     </div>
     <div class="prayer-section">
@@ -145,13 +160,13 @@
         <div class="header">Masjid Ridzwaniah</div>
         <div class="date" id="date"></div>
         <div class="time" id="clock"></div>
-        <div class="prayer-table" id="prayerTimesDisplay">
-          <div class="prayer">Subuh: <span id="subuh">--:--</span></div>
-          <div class="prayer">Syuruk: <span id="syuruk">--:--</span></div>
-          <div class="prayer">Zohor: <span id="zohor">--:--</span></div>
-          <div class="prayer">Asar: <span id="asar">--:--</span></div>
-          <div class="prayer">Maghrib: <span id="maghrib">--:--</span></div>
-          <div class="prayer">Isyak: <span id="isyak">--:--</span></div>
+        <div class="prayer-table">
+          <div class="prayer">Subuh: <span id="Fajr">--:--</span></div>
+          <div class="prayer">Syuruk: <span id="Sunrise">--:--</span></div>
+          <div class="prayer">Zohor: <span id="Dhuhr">--:--</span></div>
+          <div class="prayer">Asar: <span id="Asr">--:--</span></div>
+          <div class="prayer">Maghrib: <span id="Maghrib">--:--</span></div>
+          <div class="prayer">Isyak: <span id="Isha">--:--</span></div>
         </div>
       </div>
       <div>
@@ -160,54 +175,34 @@
       </div>
     </div>
   </div>
-  <div class="ticker"><span id="quranTicker"></span></div>
+  <div class="ticker">
+    <span id="quranTicker"></span>
+  </div>
+
   <audio id="azanAudio" src="https://archive.org/download/azan_202104/azan.mp3" preload="auto"></audio>
 
   <script>
-    const LAT = 6.3265;
-    const LONG = 99.8483;
-    const prayerIds = {
-      Fajr: "subuh", Sunrise: "syuruk", Dhuhr: "zohor",
-      Asr: "asar", Maghrib: "maghrib", Isha: "isyak"
-    };
-    let currentPrayerTimes = {};
+    const LAT = 6.3430;
+    const LONG = 99.7781;
+    const prayerOrder = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+    let prayerTimes = {};
     let azanPlayed = {};
-
-    const malayVerses = [
-      "Sesungguhnya solat itu mencegah dari perbuatan keji dan mungkar. (Al-Ankabut: 45)",
-      "Dan dirikanlah solat, tunaikanlah zakat dan rukuklah bersama orang-orang yang rukuk. (Al-Baqarah: 43)",
-      "Sesungguhnya Aku ini adalah Allah; tiada Tuhan selain Aku, maka sembahlah Aku dan dirikanlah solat untuk mengingatiku. (Taha: 14)",
-      "Peliharalah semua solat(mu), dan solat Wusta. Berdirilah kerana Allah dengan khusyuk. (Al-Baqarah: 238)",
-      "Beruntunglah orang-orang yang beriman, iaitu orang yang khusyuk dalam solatnya. (Al-Mu’minun: 1-2)"
-    ];
-
-    function getRandomVerse() {
-      const idx = Math.floor(Math.random() * malayVerses.length);
-      return malayVerses[idx];
-    }
-
-    function updateQuranTicker() {
-      document.getElementById("quranTicker").textContent = getRandomVerse();
-    }
 
     async function fetchPrayerTimes() {
       const today = new Date();
       const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
       const url = `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${LAT}&longitude=${LONG}&method=3`;
-
       try {
         const res = await fetch(url);
         const data = await res.json();
-        const times = data.data.timings;
-
-        for (let key in prayerIds) {
-          const id = prayerIds[key];
-          const time = times[key].slice(0, 5);
-          currentPrayerTimes[id] = time;
-          document.getElementById(id).textContent = time;
-        }
-      } catch (err) {
-        console.error("Gagal ambil waktu solat:", err);
+        prayerTimes = data.data.timings;
+        prayerOrder.forEach(name => {
+          const time = prayerTimes[name].slice(0,5);
+          document.getElementById(name).textContent = time;
+          prayerTimes[name] = time;
+        });
+      } catch (e) {
+        console.error("Gagal ambil waktu solat:", e);
       }
     }
 
@@ -217,94 +212,95 @@
       document.getElementById("date").textContent = now.toLocaleDateString('ms-MY', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
-      updateNextPrayerCountdown(now);
+      updateCountdown(now);
     }
 
-    function updateNextPrayerCountdown(now) {
-      const order = ["subuh", "syuruk", "zohor", "asar", "maghrib", "isyak"];
-      for (let id of order) {
-        if (currentPrayerTimes[id]) {
-          const [hour, minute] = currentPrayerTimes[id].split(':').map(Number);
-          const prayerTime = new Date(now);
-          prayerTime.setHours(hour, minute, 0, 0);
-          if (prayerTime > now) {
-            const diff = prayerTime - now;
-            const h = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
-            const m = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-            const s = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-            document.getElementById("nextPrayerCountdown").textContent = `Countdown: ${h}:${m}:${s}`;
-            break;
-          }
+    function updateCountdown(now) {
+      for (let name of prayerOrder) {
+        const [h, m] = prayerTimes[name]?.split(':').map(Number) || [];
+        const time = new Date(now);
+        time.setHours(h, m, 0, 0);
+        if (time > now) {
+          const diff = time - now;
+          const hrs = String(Math.floor(diff / 3600000)).padStart(2, '0');
+          const mins = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+          const secs = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+          document.getElementById("nextPrayerCountdown").textContent = `Countdown: ${hrs}:${mins}:${secs}`;
+          break;
+        }
+      }
+    }
+
+    function highlightPrayer() {
+      const now = new Date();
+      let current = null, next = null;
+      prayerOrder.forEach((name, i) => {
+        const [h, m] = prayerTimes[name]?.split(':').map(Number) || [];
+        const time = new Date(now);
+        time.setHours(h, m, 0, 0);
+        if (now >= time) current = name;
+        else if (!next) next = name;
+      });
+      prayerOrder.forEach(id => {
+        const el = document.getElementById(id).parentElement;
+        el.classList.remove("current-prayer", "next-prayer");
+      });
+      if (current) document.getElementById(current).parentElement.classList.add("current-prayer");
+      if (next) document.getElementById(next).parentElement.classList.add("next-prayer");
+    }
+
+    function playAzan() {
+      const now = new Date();
+      const timeNow = now.toTimeString().slice(0, 5);
+      for (let name of prayerOrder) {
+        if (prayerTimes[name] === timeNow && !azanPlayed[timeNow]) {
+          document.getElementById("azanAudio").play().catch(() => {});
+          azanPlayed[timeNow] = true;
         }
       }
     }
 
     function updateRamadanCountdown() {
-      const ramadanStart = new Date("2025-03-01");
       const now = new Date();
-      const daysLeft = Math.ceil((ramadanStart - now) / (1000 * 60 * 60 * 24));
-      document.getElementById("ramadanCountdown").textContent = `Awal Ramadan: ${daysLeft} hari lagi`;
-    }
-
-    function checkAzanTrigger() {
-      const now = new Date();
-      const currentTime = now.toTimeString().slice(0, 5);
-      for (let id in currentPrayerTimes) {
-        const time = currentPrayerTimes[id];
-        if (time === currentTime && !azanPlayed[time]) {
-          const audio = document.getElementById("azanAudio");
-          audio.play().catch(err => console.warn("Azan autoplay disekat:", err));
-          azanPlayed[time] = true;
-        }
-      }
-    }
-
-    function highlightCurrentAndNextPrayer() {
-      const now = new Date();
-      const order = ["subuh", "syuruk", "zohor", "asar", "maghrib", "isyak"];
-      let current = null, next = null;
-      for (let i = 0; i < order.length; i++) {
-        const id = order[i];
-        const timeStr = currentPrayerTimes[id];
-        if (!timeStr) continue;
-        const [h, m] = timeStr.split(':').map(Number);
-        const prayerTime = new Date(now);
-        prayerTime.setHours(h, m, 0, 0);
-        if (now >= prayerTime) current = id;
-        else if (!next) next = id;
-      }
-      order.forEach(id => {
-        const el = document.getElementById(id).parentElement;
-        el.classList.remove('current-prayer', 'next-prayer');
-      });
-      if (current) document.getElementById(current).parentElement.classList.add('current-prayer');
-      if (next) document.getElementById(next).parentElement.classList.add('next-prayer');
+      const ramadan = new Date("2025-03-01");
+      const diff = Math.ceil((ramadan - now) / (1000 * 60 * 60 * 24));
+      document.getElementById("ramadanCountdown").textContent = `Awal Ramadan: ${diff} hari lagi`;
     }
 
     function startSlideshow() {
-      const slides = document.querySelectorAll('#slideshow img');
-      let currentSlide = 0;
+      const slides = document.querySelectorAll("#slideshow img");
+      let current = 0;
       setInterval(() => {
-        slides[currentSlide].classList.remove('active');
-        currentSlide = (currentSlide + 1) % slides.length;
-        slides[currentSlide].classList.add('active');
+        slides[current].classList.remove("active");
+        current = (current + 1) % slides.length;
+        slides[current].classList.add("active");
       }, 8000);
     }
 
-    // Main loop
+    function initTicker() {
+      const verses = [
+        "“Sesungguhnya solat itu mencegah dari perbuatan keji dan mungkar.” (Surah Al-Ankabut: 45)",
+        "“Dan dirikanlah solat, tunaikanlah zakat...” (Surah Al-Baqarah: 43)",
+        "“Peliharalah semua solat(mu)...” (Surah Al-Baqarah: 238)",
+        "“Solat itu adalah tiang agama...” (Hadis Riwayat At-Tirmizi)",
+        "“Berjemaah itu lebih baik daripada solat bersendirian...” (HR Bukhari & Muslim)"
+      ];
+      const ticker = document.getElementById("quranTicker");
+      ticker.textContent = verses.sort(() => 0.5 - Math.random()).join(" ❖ ");
+    }
+
     setInterval(() => {
       updateClock();
       updateRamadanCountdown();
-      checkAzanTrigger();
-      highlightCurrentAndNextPrayer();
+      playAzan();
+      highlightPrayer();
     }, 1000);
 
     fetchPrayerTimes();
     updateClock();
     updateRamadanCountdown();
-    updateQuranTicker();
     startSlideshow();
-    setInterval(updateQuranTicker, 60000); // Change ticker verse every minute
+    initTicker();
   </script>
 </body>
 </html>
