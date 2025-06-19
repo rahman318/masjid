@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Masjid Langkawi - Paparan Waktu Solat</title>
+  <title>Prayer Display with Azan and Memo</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -131,12 +131,12 @@
     <div class="slideshow" id="slideshow">
       <img src="images/mosque1.jpg" class="active" />
       <img src="images/mosque2.jpg" />
-      <img src="images/mosque3.jpg" />
+      <img src="https://source.unsplash.com/1600x900/?mosque,3" />
     </div>
   </div>
   <div class="prayer-section">
     <div>
-      <div class="header">Masjid Langkawi</div>
+      <div class="header">Masjid Ridzwaniah</div>
       <div class="date" id="date"></div>
       <div class="time" id="clock"></div>
       <div class="prayer-table" id="prayerTimesDisplay">
@@ -150,32 +150,40 @@
     </div>
     <div>
       <div class="countdown" id="nextPrayerCountdown">Countdown: --:--:--</div>
-      <div class="ramadan" id="ramadanCountdown">Awal Ramadan: -- hari lagi</div>
+      <div class="ramadan" id="ramadanCountdown">Awal Ramadan: 50 hari lagi</div>
     </div>
   </div>
   <audio id="azanAudio" src="https://archive.org/download/azan_202104/azan.mp3" preload="auto"></audio>
+
   <script>
     const prayerIds = {
-      subuh: "Subuh", syuruk: "Syuruk", zohor: "Zohor",
-      asar: "Asar", maghrib: "Maghrib", isyak: "Isyak"
+      fajr: "subuh",
+      shurooq: "syuruk",
+      dhuhr: "zohor",
+      asr: "asar",
+      maghrib: "maghrib",
+      isha: "isyak"
     };
+
     let currentPrayerTimes = {};
     let azanPlayed = {};
 
     async function fetchPrayerTimes() {
-      const url = "https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&period=day&zone=PLS01";
+      const url = `https://waktu-solat-api.herokuapp.com/api/v1/prayer_times?zone=KDH06`;
       try {
         const res = await fetch(url);
         const data = await res.json();
-        const times = data.prayerTime[0];
+        const today = data.data.prayer_times.at(-1);
+
         currentPrayerTimes = {
-          subuh: times.fajr,
-          syuruk: times.syuruk,
-          zohor: times.dhuhr,
-          asar: times.asr,
-          maghrib: times.maghrib,
-          isyak: times.isha
+          subuh: today.fajr,
+          syuruk: today.shurooq,
+          zohor: today.dhuhr,
+          asar: today.asr,
+          maghrib: today.maghrib,
+          isyak: today.isha
         };
+
         for (let id in currentPrayerTimes) {
           document.getElementById(id).textContent = currentPrayerTimes[id];
         }
@@ -225,7 +233,8 @@
       for (let id in currentPrayerTimes) {
         const time = currentPrayerTimes[id];
         if (time === currentTime && !azanPlayed[time]) {
-          document.getElementById("azanAudio").play().catch(err => console.warn("Azan autoplay blocked:", err));
+          const audio = document.getElementById("azanAudio");
+          audio.play().catch(err => console.warn("Autoplay blocked:", err));
           azanPlayed[time] = true;
         }
       }
