@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Masjid Ridzwaniah - Paparan Solat</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0; font-family: 'Poppins', sans-serif;
+      display: flex; flex-direction: column;
+      height: 100vh; background: #000; color: white;
+    }
+    .memo, .prayer, .ticker { padding: 1em; }
+    .ticker { background: #111; overflow: hidden; white-space: nowrap; }
+    .ticker span { display: inline-block; padding-right: 5em; animation: scroll 30s linear infinite; }
+    @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+    .highlight { background: darkgreen; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="memo">
+    <h2>Memo</h2>
+    <ul>
+      <li>Kuliah Maghrib: Ustaz Halim - 8:00PM</li>
+      <li>Gotong Royong Ahad ini</li>
+      <li>Derma Ramadan kini dibuka</li>
+    </ul>
+  </div>
+  <div class="prayer">
+    <h2 id="location">Masjid Ridzwaniah, Langkawi</h2>
+    <div id="date"></div>
+    <div id="times">
+      <div id="subuh">Subuh: --:--</div>
+      <div id="syuruk">Syuruk: --:--</div>
+      <div id="zohor">Zohor: --:--</div>
+      <div id="asar">Asar: --:--</div>
+      <div id="maghrib">Maghrib: --:--</div>
+      <div id="isyak">Isyak: --:--</div>
+    </div>
+  </div>
+  <div class="ticker" id="ticker"></div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('Service Worker registered'));
+    }
+
+    const prayerIds = { Fajr: "subuh", Sunrise: "syuruk", Dhuhr: "zohor", Asr: "asar", Maghrib: "maghrib", Isha: "isyak" };
+    const date = new Date();
+    document.getElementById("date").textContent = date.toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    async function fetchPrayerTimes() {
+      const today = new Date();
+      const dateStr = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
+      const url = `https://api.aladhan.com/v1/timings/${dateStr}?latitude=6.3536&longitude=99.7985&method=3`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const times = data.data.timings;
+        for (let key in prayerIds) {
+          let id = prayerIds[key];
+          let time = times[key].slice(0,5);
+          if (id === "zohor" && today.getDay() === 5) {
+            document.getElementById(id).textContent = "Solat Jumaat: " + time;
+          } else {
+            document.getElementById(id).textContent = key + ": " + time;
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching times", err);
+      }
+    }
+
+    function startTicker() {
+      const verses = [
+        "Dan dirikanlah solat, tunaikanlah zakat, dan rukuklah bersama orang yang rukuk. (Al-Baqarah: 43)",
+        "Sesungguhnya solat itu mencegah dari perbuatan keji dan mungkar. (Al-Ankabut: 45)",
+        "Peliharalah semua solat dan solat Wusta. (Al-Baqarah: 238)",
+        "Sesungguhnya solat itu adalah fardhu yang ditentukan waktunya atas orang-orang yang beriman. (An-Nisa: 103)"
+      ];
+      const ticker = document.getElementById("ticker");
+      ticker.innerHTML = verses.map(v => `<span>${v}</span>`).join("");
+    }
+
+    fetchPrayerTimes();
+    startTicker();
+  </script>
+</body>
+</html>
