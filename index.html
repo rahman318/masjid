@@ -85,6 +85,25 @@
     .ramadan {
       text-align: center; font-size: 1vw; color: #00aaff; margin-top: 0.5vh;
     }
+    .ticker-wrapper {
+      width: 100%;
+      overflow: hidden;
+      background: #111;
+      position: absolute;
+      bottom: 0;
+    }
+    .ticker {
+      display: inline-block;
+      white-space: nowrap;
+      color: #00ffff;
+      font-size: 1.2vw;
+      animation: scrollText 40s linear infinite;
+      padding: 1vh 0;
+    }
+    @keyframes scrollText {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
     audio { display: none; }
     .current-prayer {
       background-color: #004d00 !important;
@@ -153,6 +172,9 @@
       <div class="ramadan" id="ramadanCountdown">Awal Ramadan: 50 hari lagi</div>
     </div>
   </div>
+  <div class="ticker-wrapper">
+    <div class="ticker" id="quranTicker"></div>
+  </div>
   <audio id="azanAudio" src="https://archive.org/download/azan_202104/azan.mp3" preload="auto"></audio>
   <script>
     const LAT = 6.3536;
@@ -172,7 +194,6 @@
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
 
-      // Ubah label Zohor jika hari Jumaat
       const zohorRow = document.getElementById("zohorRow");
       const zohorTime = currentPrayerTimes["zohor"] || "--:--";
       if (day === 5) {
@@ -276,6 +297,19 @@
       }, 8000);
     }
 
+    function displayQuranTicker() {
+      const verses = [
+        "Dan dirikanlah solat, tunaikanlah zakat, dan rukuklah bersama orang yang rukuk. (Al-Baqarah: 43)",
+        "Sesungguhnya solat itu mencegah dari perbuatan keji dan mungkar. (Al-Ankabut: 45)",
+        "Peliharalah semua solat dan solat Wusta. (Al-Baqarah: 238)",
+        "Solat itu adalah fardhu atas orang beriman pada waktunya. (An-Nisa: 103)",
+        "Rasulullah SAW bersabda: Sebaik-baik amal ialah solat pada waktunya. (HR Bukhari & Muslim)",
+        "Solat adalah tiang agama. Barangsiapa mendirikannya, maka ia menegakkan agama. (HR Tirmidzi)"
+      ];
+      const ticker = document.getElementById("quranTicker");
+      ticker.innerText = verses.join(" ❖ ");
+    }
+
     setInterval(() => {
       updateClock();
       updateRamadanCountdown();
@@ -287,6 +321,7 @@
     updateClock();
     updateRamadanCountdown();
     startSlideshow();
+    displayQuranTicker();
   </script>
 </body>
 </html>
